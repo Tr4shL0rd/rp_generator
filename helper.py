@@ -22,8 +22,11 @@ class Character:
     Presenting_gender:str=None
     Body_type:str=None
     Class:str=None
+    Spec:str=None
+    Role:str=None
 
 def race_desc(race:str):
+    """returns the noun of a race"""
     race_descriptors = {
         "dracthyr": "Dracthyrian",
         "human": "Human",
@@ -46,13 +49,14 @@ def race_desc(race:str):
     return race_descriptors[split_race[-1].lower()]
 
 def DEBUG(msg):
+    """DEBUG"""
     frame = inspect.currentframe().f_back
     filename = inspect.getframeinfo(frame).filename
     line_number = inspect.getframeinfo(frame).lineno 
     print(f"[red underline][DEBUG:{filename.split('/')[-1]}:{line_number}][/red underline] {msg}")
 
 def race_class():
-    """dada"""
+    """fills the race/class dict"""
     with open(RACE_CLASS_PATH, "r", encoding="utf8", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         data = {}
@@ -97,6 +101,29 @@ class Pick:
         race = self.random_race()
         return random.choice(self.race_class[race])
 
+    def random_spec(self, c_class:str|Character=None) -> Tuple[str, str]:
+        """Returns a random spec from a clas"""
+        class_specs = {
+            "Death Knight": [("Blood", "Tank"), ("Frost", "DPS"), ("Unholy", "DPS")],
+            "Demon Hunter": [("Havoc", "DPS"), ("Vengeance", "Tank")],
+            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), ("Restoration", "Healer")],
+            "Hunter": [("Beast Mastery", "DPS"), ("Marksmanship", "DPS"), ("Survival", "DPS")],
+            "Mage": [("Arcane", "DPS"), ("Fire", "DPS"), ("Frost", "DPS")],
+            "Monk": [("Brewmaster", "Tank"), ("Mistweaver", "Healer"), ("Windwalker", "DPS")],
+            "Paladin": [("Holy", "Healer"), ("Protection", "Tank"), ("Retribution", "DPS")],
+            "Priest": [("Discipline", "Healer"), ("Holy", "Healer"), ("Shadow", "DPS")],
+            "Rogue": [("Assassination", "DPS"), ("Outlaw", "DPS"), ("Subtlety", "DPS")],
+            "Shaman": [("Elemental", "DPS"), ("Enhancement", "DPS"), ("Restoration", "Healer")],
+            "Warlock": [("Affliction", "DPS"), ("Demonology", "DPS"), ("Destruction", "DPS")],
+            "Warrior": [("Arms", "DPS"), ("Fury", "DPS"), ("Protection", "Tank")]
+        }
+
+        if isinstance(c_class, Character):
+            spec,role = random.choice(class_specs[c_class.Class.title()])
+        else:
+            spec,role = random.choice(class_specs[c_class.title()])
+        return (spec,role)
+
     def random_body_type(self):
         """Returns a random body type"""
         return random.choice(self.body_types)
@@ -111,7 +138,7 @@ class Pick:
                 race := self.random_race(), # race
                 random.choice(self.race_class[race]) # class
                 # doing it like this instead of pulling directly from classes file because
-                # class/race combo might not be valid unless i pull directly from the 
+                # class/race combo might not be valid unless i pull directly from the
                 # class list within the race itself from the race/class dict
                 )
 
@@ -120,12 +147,14 @@ class Pick:
         return (*self.random_race_class(), self.random_body_type())
 
     def create_character(self) -> Character:
+        """creates a random character"""
         _race,_class = self.random_race_class()
         _body_type = self.random_body_type()
         _presenting_gender = body_type_to_presenting_gender(_body_type)
         _race_desc = race_desc(_race)
+        _spec,_role = self.random_spec(_class)
         _clan = None
         if len(_race.split(" ")) > 1:
             _clan = " ".join(_race.split(" ")[:-1])
             _race_desc = f"{_clan} {_race_desc}"
-        return Character(Race=_race, Race_description=_race_desc, Presenting_gender=_presenting_gender, Body_type=_body_type, Class=_class, Clan=_clan)
+        return Character(Race=_race, Race_description=_race_desc,Spec=_spec, Role=_role,Presenting_gender=_presenting_gender, Body_type=_body_type, Class=_class, Clan=_clan)

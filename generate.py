@@ -1,13 +1,14 @@
 """dadwa"""
 def main():
+    """main"""
     picker = helper.Pick()
     character = picker.create_character()
 
     helper.DEBUG(character)
 
-    helper.DEBUG(f"KEYWORDS: {background.get_keywords(character)}")
+    #helper.DEBUG(f"KEYWORDS: {background.get_keywords(character)}")
 
-    print(f"you're a {character.Presenting_gender} presenting {character.Race_description} {character.Class}")
+    print(f"you're a {character.Presenting_gender} presenting {character.Race_description} {character.Spec} {character.Class}")
     print("create backstory[Y/n]? ",end="")
     choice = input("") or "y"
     if choice == "" or choice.lower() == "y":
@@ -16,7 +17,7 @@ def main():
 try:
     from rich import print # pylint: disable=redefined-builtin
     import helper
-    import background   
+    import background
     main()
 except KeyboardInterrupt:
     print("exiting...")
