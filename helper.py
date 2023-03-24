@@ -16,6 +16,7 @@ CLASSES_PATH = os.path.join(DATA_PATH, "classes.csv")
 @dataclass
 class Character:
     """Represents a character"""
+    Name:str=None
     Race:str=None
     Race_description:str=None
     Clan:str=None
@@ -66,10 +67,6 @@ def race_class():
             data[race] = classes
     return data
 
-def url_safe_name(string:str):
-    """makes a string usable to the name generator"""
-    return string.replace(" ", "-")
-
 def body_type_to_presenting_gender(body_type:str):
     """returns a presenting gender based on body type"""
     gender_presentations = {
@@ -115,7 +112,8 @@ class Pick:
             "Rogue": [("Assassination", "DPS"), ("Outlaw", "DPS"), ("Subtlety", "DPS")],
             "Shaman": [("Elemental", "DPS"), ("Enhancement", "DPS"), ("Restoration", "Healer")],
             "Warlock": [("Affliction", "DPS"), ("Demonology", "DPS"), ("Destruction", "DPS")],
-            "Warrior": [("Arms", "DPS"), ("Fury", "DPS"), ("Protection", "Tank")]
+            "Warrior": [("Arms", "DPS"), ("Fury", "DPS"), ("Protection", "Tank")],
+            "Evoker": [("Devastation", "DPS"), ("Preservation", "Healer")]
         }
 
         if isinstance(c_class, Character):
@@ -154,7 +152,20 @@ class Pick:
         _race_desc = race_desc(_race)
         _spec,_role = self.random_spec(_class)
         _clan = None
+        print(f"{_race = }")
+        print(f"{_body_type}")
+        _name = name_generator.get_names(race=_race,body_type=_body_type)
         if len(_race.split(" ")) > 1:
             _clan = " ".join(_race.split(" ")[:-1])
             _race_desc = f"{_clan} {_race_desc}"
-        return Character(Race=_race, Race_description=_race_desc,Spec=_spec, Role=_role,Presenting_gender=_presenting_gender, Body_type=_body_type, Class=_class, Clan=_clan)
+        return Character(
+                        Name=_name,
+                        Race=_race,
+                        Race_description=_race_desc,
+                        Spec=_spec,
+                        Role=_role,
+                        Presenting_gender=_presenting_gender,
+                        Body_type=_body_type,
+                        Class=_class,
+                        Clan=_clan
+                        )
