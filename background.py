@@ -3,6 +3,7 @@ import os
 import openai
 from dotenv import load_dotenv
 from helper import Character
+from helper import DEBUG
 load_dotenv()
 APIKEY = os.environ["APIKEY"]
 openai.api_key = APIKEY
@@ -13,7 +14,7 @@ models = {
 }
 BASE_KEYWORDS = [
                 "\"World of Warcraft\"",
-                "Warcraft"
+                "Warcraft",
                 "Azeroth",
                 "Fantasy",
                 "Character Creation",
@@ -35,16 +36,22 @@ def get_keywords(character:Character):
     return BASE_KEYWORDS + [character.Presenting_gender,
                             character.Race_description,
                             character.Class,
-                            character.Race]
+                            character.Race,
+                            character.Role,
+                            f"{character.Spec} {character.Class}"]
 
 def create_backstory(character:Character):
     """
     creates a backstory for the character based on keywords
     """
     keywords = get_keywords(character)
+    DEBUG(keywords)
     prompt = f"use these keywords for the backstory: {keywords}. "\
             "the backstory has to be written for the perspectiv of the character. "\
             "The backstory cannot be longer than 255 symbols (letters, spaces, etc...). "\
+            "Words such as \"DPS\", \"Tank\" and \"Healer\" refers to the characters role. "\
+                "so if DPS, the character is a damage dealer, and so forth. "\
+            "Avoid saying the name \"World of Warcraft\". "\
             "Please note that the world the character lives in is called \"Azeroth\". "\
             "Finish the backstory with the \"END BACKSTORY\". "\
             "create a short character backstory. "\
