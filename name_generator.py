@@ -1,10 +1,10 @@
 """Module for getting names from fantasynamegenerators.com"""
+import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import random
 
 options = Options()
 options.headless = True
@@ -38,10 +38,16 @@ def get_names(race:str, body_type:str):
         "1": "male",
         "2": "female"
     }
+    special_races = ["dark iron dwarf", "nightborne", "kul tiran human", "mechagnome", "zandalari troll", "lightforged draenei"]
     url = "https://www.fantasynamegenerators.com/"\
             f"{url_safe_name(race).lower()}-wow-names.php"
+    if race in special_races:
+        if special_races == "kul tiran human":
+            url = "https://www.fantasynamegenerators.com/human-wow-names.php"
+        else:
+            url = "https://www.fantasynamegenerators.com/"\
+                    f"wow-{url_safe_name(race).lower()}-names.php"
     driver.get(url)
-
     # clicks "Get <gender> names" #
     # gendered names doesnt seem to toggle unless pressed twice
     click_gender_button(gender.get(body_type,2))
@@ -55,3 +61,9 @@ def get_names(race:str, body_type:str):
     names = str(names_container.text) # converting to str for syntax highlight
     driver.quit()
     return random.choice(names.strip().split("\n"))
+
+def quit_driver():
+    """
+    enables to force the driver to stop from other locations that name_generator.py
+    """
+    driver.quit()
