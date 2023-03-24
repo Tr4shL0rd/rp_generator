@@ -4,12 +4,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import helper
+import random
 
 options = Options()
 options.headless = True
 driver = webdriver.Firefox(options=options)
 
+
+def url_safe_name(string:str):
+    """makes a string usable to the name generator"""
+    return string.replace(" ", "-")
 
 def click_gender_button(gender:str):
     """clicks a button"""
@@ -17,7 +21,6 @@ def click_gender_button(gender:str):
         "female": "/html/body/div/div[2]/div/div[4]/div[1]/input[2]",
         "male": "/html/body/div/div[2]/div/div[4]/div[1]/input[1]"
     }
-    print(gender)
     button = WebDriverWait(driver, 3).until(
         EC.presence_of_element_located((By.XPATH, gender_buttons.get(gender.lower(),"/html/body/div/div[2]/div/div[4]/div[1]/input[2]"))))
 
@@ -36,24 +39,19 @@ def get_names(race:str, body_type:str):
         "2": "female"
     }
     url = "https://www.fantasynamegenerators.com/"\
-            f"{helper.url_safe_name(race).lower()}-wow-names.php"
+            f"{url_safe_name(race).lower()}-wow-names.php"
     driver.get(url)
-    #WebDriverWait
-    #time.sleep(0.5)
-    ############################
+
     # clicks "Get <gender> names" #
-    ############################
+    # gendered names doesnt seem to toggle unless pressed twice
+    click_gender_button(gender.get(body_type,2))
     click_gender_button(gender.get(body_type,2))
 
-    ##############
     # Gets names #
-    ##############
-    #name_container = driver.find_element(By.CLASS_NAME, "genSection")
-    #names_container = name_container.find_element(By.ID, "result")
     name_container = WebDriverWait(driver, 3).until(
         EC.presence_of_element_located((By.CLASS_NAME, "genSection")))
     names_container = WebDriverWait(name_container, 3).until(
         EC.presence_of_element_located((By.ID, "result")))
     names = str(names_container.text) # converting to str for syntax highlight
     driver.quit()
-    return names.strip().split("\n")
+    return random.choice(names.strip().split("\n"))
