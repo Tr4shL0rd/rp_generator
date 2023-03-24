@@ -2,17 +2,20 @@
 import csv
 import random
 from pathlib import Path
-from rich import print # pylint: disable=redefined-builtin
-import os.path
 from typing import Tuple
+import os.path
+import os
+import psutil
+import time
 import inspect
 from dataclasses import dataclass
+from rich import print # pylint: disable=redefined-builtin
 import name_generator
 
 DATA_PATH = Path("data")
 RACE_CLASS_PATH = os.path.join(DATA_PATH, "race_class.csv")
 CLASSES_PATH = os.path.join(DATA_PATH, "classes.csv")
-
+CURRENT_TIME = time.time()
 @dataclass
 class Character:
     """Represents a character"""
@@ -55,6 +58,14 @@ def DEBUG(msg):
     filename = inspect.getframeinfo(frame).filename
     line_number = inspect.getframeinfo(frame).lineno 
     print(f"[red underline][DEBUG:{filename.split('/')[-1]}:{line_number}][/red underline] {msg}")
+
+def double_check_firefox_driver_kill():
+    """
+    double checks if there are any headless firefox processes still running
+    """
+    for proc in psutil.process_iter(["pid", "name", "create_time"]):
+        if proc.info["name"] == "firefox" and CURRENT_TIME - proc.info["create_time"] < 120:
+            os.kill(proc.info["pid"], 9)
 
 def race_class():
     """fills the race/class dict"""
@@ -152,8 +163,6 @@ class Pick:
         _race_desc = race_desc(_race)
         _spec,_role = self.random_spec(_class)
         _clan = None
-        print(f"{_race = }")
-        print(f"{_body_type}")
         _name = name_generator.get_names(race=_race,body_type=_body_type)
         if len(_race.split(" ")) > 1:
             _clan = " ".join(_race.split(" ")[:-1])
