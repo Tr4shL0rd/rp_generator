@@ -19,6 +19,9 @@ try:
     import helper
     import background
     main()
+except Exception as e:
+    print("unexpected error")
+    print(e)
 except KeyboardInterrupt:
     print("exiting...")
     import sys
