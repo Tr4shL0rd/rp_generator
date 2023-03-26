@@ -3,7 +3,6 @@ import os
 import openai
 from dotenv import load_dotenv
 from helper import Character
-from helper import DEBUG
 load_dotenv()
 APIKEY = os.environ["APIKEY"]
 openai.api_key = APIKEY

@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Tuple
 import os.path
 import os
-import psutil
 import time
 import inspect
 from dataclasses import dataclass
+import psutil
 from rich import print # pylint: disable=redefined-builtin
 import name_generator
 
@@ -141,6 +141,51 @@ class Pick:
         """returns a random name based on race and body type"""
         return random.choice(name_generator.get_names(race, body_type))
 
+    def random_class_from_race(self, race:str) -> str:
+        """returns a random race-valid class"""
+        return random.choice(self.race_class[race])
+
+    def random_race_from_class(self, _class:str) -> str:
+        """returns a random class-valid race"""
+        class_race = {
+            "demon hunter": ["blood elf", "night elf"],
+            "death knight": ["human", "dwarf", "night elf", "gnome", "draenei", "worgen",
+                                "pandaren", "orc", "undead", "tauren", "troll",
+                                "blood elf", "goblin"],
+            "druid":        ["night elf", "tauren", "worgen", "troll", "highmountain tauren",
+                                "zandalari troll", "kul tiran"],
+            "hunter":       ["human","dwarf", "night elf", "gnome", "draenei", "worgen",
+                                "pandaren", "orc", "undead", "tauren", "troll", "blood elf",
+                                "goblin", "vulpera", "mag'har orc",
+                                "dark iron dwarf", "mechagnome"],
+            "mage":         ["human","dwarf", "gnome", "draenei", "worgen", "pandaren",
+                                "orc", "undead", "troll", "blood elf", "nightborne",
+                                "void elf", "lightforged draenei"],
+            "monk":         ["human","dwarf", "night elf", "gnome", "draenei", "pandaren",
+                                "orc", "undead", "tauren", "troll", "blood elf"],
+            "paladin":      ["human","dwarf", "draenei", "tauren", "blood elf",
+                                "lightforged draenei", "dark iron dwarf",
+                                "mechagnome", "zandalari troll"],
+            "priest":       ["human","dwarf", "night elf", "gnome", "draenei", "worgen",
+                                "pandaren", "undead", "troll", "blood elf", "void elf",
+                                "lightforged draenei"],
+            "rogue":        ["human","dwarf", "night elf", "gnome", "draenei", "worgen",
+                                "pandaren", "orc", "undead", "troll", "blood elf", "goblin",
+                                "vulpera", "mag'har orc", "dark iron dwarf", "mechagnome"],
+            "shaman":       ["dwarf","draenei", "orc", "tauren", "troll", "mag'har orc",
+                                "dark iron dwarf", "kul tiran", "zandalari troll"],
+            "warlock":      ["human","dwarf", "gnome", "orc", "undead", "troll",
+                                "blood elf", "goblin", "void elf"],
+            "warrior":      ["human","dwarf", "night elf", "gnome", "draenei", "worgen",
+                                "pandaren", "orc", "undead", "tauren", "troll", "blood elf",
+                                "vulpera", "mag'har orc", "dark iron dwarf", "mechagnome",
+                                "kul tiran"],
+            "evoker":       ["dracthyr"]
+        }
+        return random.choice(class_race[_class.lower()])
+
+
+
     def random_race_class(self) -> Tuple[str,str]:
         """returns a valid race/class combo"""
         return (
@@ -163,7 +208,7 @@ class Pick:
         _race_desc = race_desc(_race)
         _spec,_role = self.random_spec(_class)
         _clan = None
-        _name = name_generator.get_names(race=_race,body_type=_body_type)
+        _name = random.choice(name_generator.get_names(race=_race,body_type=_body_type))
         if len(_race.split(" ")) > 1:
             _clan = " ".join(_race.split(" ")[:-1])
             _race_desc = f"{_clan} {_race_desc}"

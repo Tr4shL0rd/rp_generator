@@ -2,8 +2,6 @@
 
 This project contains a set of Python modules that generate character names, backstories and descriptions for World of Warcraft players or fantasy RPGs in general. The modules rely on the [OpenAI API](https://openai.com/) for generating backstories, the [selenium library](https://selenium-python.readthedocs.io) for scraping the website [fantasynamegenerators.com](https://www.fantasynamegenerators.com/) to generate names, and the [dotenv library](https://pypi.org/project/python-dotenv/) for securely storing the OpenAI API key.
 
-
-
 ## Setup
 
 Before running the program, you will need to set up a virtual environment and install the necessary dependencies. To do this, follow these steps:
@@ -13,7 +11,6 @@ Before running the program, you will need to set up a virtual environment and in
 3. Create a virtual environment using your preferred method. For example, using [venv](https://docs.python.org/3/library/venv.html), run: `python3 -m venv env`.
 4. Activate the virtual environment. For example, run: `source env/bin/activate` on Unix/Linux systems or `.\env\Scripts\activate` on Windows.
 5. Install the project dependencies. For example, run: `pip install -r requirements.txt`.
-
 
 ## Obtaining an OpenAI API Key
 

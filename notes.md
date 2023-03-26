@@ -2,9 +2,8 @@
 
 ## TODO
 
-* get class from prefered race
-* get race from prefered class
-* assign random class spec
+* allow for rerolling: everything, name, race, gender, role, class
+* allow user choosing class, race, prefered gender, and/or role
 
 ## Keep in mind
 
