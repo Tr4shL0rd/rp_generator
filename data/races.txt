@@ -1,0 +1,25 @@
+Dracthyr
+Human
+Dwarf
+Night Elf
+Gnome
+Draenei
+Worgen
+Void Elf
+Lightforged Draenei
+Dark Iron Dwarf
+Kul Tiran Human
+Orc
+Forsaken
+Tauren
+Troll
+Blood Elf
+Goblin
+Pandaren
+Nightborne
+Highmountain Tauren
+Mag'har Orc
+Zandalari Troll
+Kul Tiran Human
+Vulpera
+Mechagnome

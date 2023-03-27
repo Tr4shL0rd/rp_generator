@@ -2,8 +2,10 @@
 
 ## TODO
 
-* allow for rerolling: everything, name, race, gender, role, class
+* rewrite to use textual
+* add support for multiple games
 * allow user choosing class, race, prefered gender, and/or role
+* speed up name generation
 
 ## Keep in mind
 

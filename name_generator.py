@@ -28,7 +28,7 @@ def get_names(race:str, body_type:str):
     options = Options()
     options.headless = True
     driver = webdriver.Firefox(options=options)
-    race = race.lower()
+    race = str(race).lower()
     if race == "mag'har orc":
         race = "orc"
     if not isinstance(body_type, str):

@@ -2,12 +2,13 @@
 import csv
 import random
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 import os.path
 import os
+import subprocess
 import time
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 import psutil
 from rich import print # pylint: disable=redefined-builtin
 import name_generator
@@ -15,7 +16,9 @@ import name_generator
 DATA_PATH = Path("data")
 RACE_CLASS_PATH = os.path.join(DATA_PATH, "race_class.csv")
 CLASSES_PATH = os.path.join(DATA_PATH, "classes.csv")
+RACE_PATH = os.path.join(DATA_PATH, "races.txt")
 CURRENT_TIME = time.time()
+
 @dataclass
 class Character:
     """Represents a character"""
@@ -28,6 +31,19 @@ class Character:
     Class:str=None
     Spec:str=None
     Role:str=None
+    Edited:Tuple[bool,int,str]=(False,0,"") # changed, times, latest
+    Rerolled:Tuple[bool,int,str]=(False,0,"")# changed, times, latest
+
+def clear_screen():
+    """clears the screen"""
+    subprocess.call("clear" if os.name == "posix" else "cls", shell=True)
+
+def character_details(character:Character):
+    for field in fields(character):
+        if getattr(character, field.name) is None or isinstance(getattr(character, field.name), bool):
+            print(f"[yellow]{field.name}[/yellow]: [bold pink italic]{getattr(character, field.name)}[/bold pink italic]")
+        else:
+            print(f"[yellow]{field.name}[/yellow]: [green]{getattr(character, field.name)}[/green]")
 
 def race_desc(race:str):
     """returns the noun of a race"""
@@ -86,6 +102,20 @@ def body_type_to_presenting_gender(body_type:str):
         }
     return gender_presentations.get(body_type, "female")
 
+def get_races() -> List[str]:
+    """returns a list of all available races"""
+    races = []
+    with open(RACE_PATH, "r", encoding="utf8") as race_file:
+        lines = race_file.readlines()
+        for line in lines:
+            races.append(line.strip())
+    return races
+
+
+def get_race_valid_classes(character:Character) -> List[str]:
+    """dwda"""
+    return race_class()[character.Race]
+
 class Pick:
     """pick class"""
     def __init__(self) -> None:
@@ -137,7 +167,7 @@ class Pick:
         """Returns a random body type"""
         return random.choice(self.body_types)
 
-    def random_name(self, race:str, body_type:str):
+    def random_name(self, race:str=None, body_type:str=None):
         """returns a random name based on race and body type"""
         return random.choice(name_generator.get_names(race, body_type))
 
@@ -184,8 +214,6 @@ class Pick:
         }
         return random.choice(class_race[_class.lower()])
 
-
-
     def random_race_class(self) -> Tuple[str,str]:
         """returns a valid race/class combo"""
         return (
@@ -200,26 +228,33 @@ class Pick:
         """returns a random valid race,class & body type"""
         return (*self.random_race_class(), self.random_body_type())
 
+    def race_valid_clan(self, _race):
+        """returns a valid clan from race"""
+        clan = " ".join(_race.split(" ")[:-1])
+        return clan if len(clan) >=1 else None
+
+        #_race_desc = f"{_clan} {_race_desc}"
+
     def create_character(self) -> Character:
         """creates a random character"""
-        _race,_class = self.random_race_class()
-        _body_type = self.random_body_type()
-        _presenting_gender = body_type_to_presenting_gender(_body_type)
-        _race_desc = race_desc(_race)
-        _spec,_role = self.random_spec(_class)
-        _clan = None
-        _name = random.choice(name_generator.get_names(race=_race,body_type=_body_type))
-        if len(_race.split(" ")) > 1:
-            _clan = " ".join(_race.split(" ")[:-1])
-            _race_desc = f"{_clan} {_race_desc}"
+        character = Character
+        character.Race, character.Class = self.random_race_class()
+        character.Body_type = self.random_body_type()
+        character.Presenting_gender = body_type_to_presenting_gender(character.Body_type)
+        character.Race_description = race_desc(character.Race)
+        character.Spec,Character.Role = self.random_spec(character.Class)
+        character.Name = random.choice(name_generator.get_names(race=character.Race,body_type=character.Body_type))
+        if len(character.Race.split(" ")) > 1:
+            character.Clan = self.race_valid_clan(character.Race)
+            character.Race_description = f"{character.Clan} {character.Race_description}"
         return Character(
-                        Name=_name,
-                        Race=_race,
-                        Race_description=_race_desc,
-                        Spec=_spec,
-                        Role=_role,
-                        Presenting_gender=_presenting_gender,
-                        Body_type=_body_type,
-                        Class=_class,
-                        Clan=_clan
+                        Name=character.Name,#_name,
+                        Race=character.Race,#_race,
+                        Race_description=character.Race_description,#_race_desc,
+                        Spec=character.Spec,#_spec,
+                        Role=character.Role,#_role,
+                        Presenting_gender=character.Presenting_gender,#_presenting_gender,
+                        Body_type=character.Body_type,#_body_type,
+                        Class=character.Class,#_class,
+                        Clan=character.Clan,#_clan
                         )
