@@ -13,7 +13,6 @@ except KeyboardInterrupt:
 
 EXCEPTION_RAISED = False
 picker = Pick()
-
 def display_character(character:Character) -> None:
     """prints character"""
     print(f"your name is [green underline]{character.Name}[/green underline], "\
@@ -21,6 +20,27 @@ def display_character(character:Character) -> None:
             f"[green underline]{character.Race_description}[/green underline] "\
             f"[green underline]{character.Spec}[/green underline] "\
             f"[green underline]{character.Class}[/green underline]")
+
+def update_reroll_field(character:Character, rerolled_field:str):
+    """
+    updates character.Rerolled
+
+    PARAMS:
+    -------
+        * rerolled_field `str`: the name of the field that was rerolled
+    """
+    return (True, character.Rerolled[1]+1, rerolled_field)
+
+def update_edit_field(character:Character, edited_field:str):
+    """
+    updates character.Edited
+
+    PARAMS:
+    -------
+        * rerolled_field `str`: the name of the field that was rerolled
+    """
+    return (True, character.Edited[1]+1, edited_field)
+
 
 def edit_race(character:Character):
     """edit race func"""
@@ -49,7 +69,7 @@ def edit_race(character:Character):
     race_choice = input(f"change to {selected_race} [Y/n]: ").lower().strip()
     if race_choice == "n":
         #helper.DEBUG("HIT ELSE AFTER RACE confirmation to change")
-        edit(character)
+        edit_menu(character)
     character.Race = selected_race
     character.Race_description = helper.race_desc(character.Race)
     character.Clan = picker.race_valid_clan(character.Race)
@@ -57,7 +77,7 @@ def edit_race(character:Character):
     # change name
     name_choice = input(
                             f"Change name to a {character.Race_description} name[Y/n]: "
-                        ).lower().strip()
+                        ).strip().lower()
     if name_choice == "y" or name_choice == "":
         character.Name = picker.random_name(character.Race,character.Body_type)
         print(f"new name: {character.Name}")
@@ -72,13 +92,36 @@ def edit_race(character:Character):
         print("[blue underline]class and spec will be "\
                 "changed to a random race-valid class[/blue underline]")
         print("do you want to change[Y/n]?")
-        class_choice = input("").lower().strip()
+        class_choice = input("").strip().lower()
         if class_choice == "n":
             #helper.DEBUG("HIT ELSE AFTER confirmation after warning (inner nest)")
             main(character)
         character.Class = picker.random_class_from_race(character.Race)
         character.Spec = picker.random_spec(character)[0]
     main(character)
+
+def edit_class(character:Character):
+    """edits the class of the character"""
+    # class menu
+    helper.clear_screen()
+    classes = helper.get_race_valid_classes(character)
+    print(f"available {character.Race} classes")
+    for class_id,_class in enumerate(classes,start=1):
+        print(f"{class_id}: {_class}")
+    chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
+    character.Class = classes[int(chosen_class)-1]
+    class_specs = helper.get_class_specs(character)
+
+    # spec menu
+    helper.clear_screen()
+    print(f"available {character.Class} specs")
+    for spec_id,spec in enumerate(class_specs, start=1):
+        print(f"{spec_id}: {spec}")
+    chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
+    # add check for valid spec
+    character.Spec  = class_specs[int(chosen_spec)-1]
+    main(character)
+
 
 
 def reroll(character:Character):
@@ -103,40 +146,46 @@ def reroll(character:Character):
     match input("[REROLL]>>> ").lower().strip():
 
         case "1" | "everything" as match_case:
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character = picker.create_character()
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
             main(character)
 
         case "2" | "race" as match_case:
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Race = picker.random_race_from_class(character.Class)
             character.Race_description = helper.race_desc(character.Race)
             name_change = input("Change name to a "\
                                 f"{character.Race_description} name? [Y/n]: ").lower().strip()
             if  name_change == "y" or name_change == "":
                 character.Name = picker.random_name(character.Race, character.Body_type)
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
             main(character)
 
         case "3" | "gender" as match_case:
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Body_type = picker.random_body_type()
             character.Presenting_gender = body_type_to_presenting_gender(character.Body_type)
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
             main(character)
 
         case "4" | "class" as match_case:
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Class = picker.random_class_from_race(character.Race)
             character.Spec = picker.random_spec(character.Class)[0]
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
             main(character)
 
         case "5" | "spec" as match_case:
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Spec = picker.random_spec(character.Class)
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
             main(character)
 
         case "6" | "name" as match_case:
             character.Name = picker.random_name(character.Race, character.Body_type)
-            character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            #character.Rerolled = (True, character.Rerolled[1]+1, rerolls[int(match_case)-1])
+            character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             main(character)
 
         case "7" | "main menu" | "main" | "menu":
@@ -145,7 +194,7 @@ def reroll(character:Character):
         case _: # DEFAULT
             main(picker.create_character())
 
-def edit(character:Character):
+def edit_menu(character:Character):
     """Edit"""
     helper.clear_screen()
     edits = [
@@ -172,35 +221,54 @@ def edit(character:Character):
             if choice == "n":
                 main(character)
             character.Name = new_name.title()
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
             main(character)
 
         case "2" | "race" as match_case:
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
             edit_race(character)
 
         case "3" | "presenting gender" | "gender"| "sex" | "body type" as match_case:
-            print(f"your Presenting_gender: {character.Presenting_gender}")
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
-            print("CHANGE gender")
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
+            # 1 = male
+            # 2 = female
+            if character.Body_type == "2":
+                character.Body_type = "1"
+
+            elif character.Body_type == "1":
+                character.Body_type = "2"
+
+            character.Presenting_gender = helper.body_type_to_presenting_gender(character.Body_type)
+            main(character)
 
         case "4" | "class" as match_case:
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
             print(f"your Class: {character.Class}")
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            edit_class(character)
             print("CHANGE class")
 
         case "5" | "spec" as match_case:
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
             print(f"your Spec: {character.Spec}")
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
             print("CHANGE spec")
 
         case "6" | "role" as match_case:
+            #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
+            character.Edited = update_edit_field(character, edits[int(match_case)-1])
             print(f"your Role: {character.Role}")
-            character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
             print("CHANGE role")
 
         case "7" | "main" | "main menu":
             main(character)
+
+        case _:
+            print("please enter a valid menu entry")
+            edit_menu(character)
 
 def main(character:Character=None):
     """main"""
@@ -214,10 +282,9 @@ def main(character:Character=None):
                     "reroll",
                     "edit",
                     "details",
-                    "quit"
                 ]
-    #helper.DEBUG(character)
-
+    commands.append("quit")
+    helper.DEBUG(character)
     display_character(character)
     for i,command in enumerate(commands, start=1):
         if command == "backstory":
@@ -233,7 +300,7 @@ def main(character:Character=None):
             reroll(character)
 
         case "3" | "edit":
-            edit(character)
+            edit_menu(character)
 
         case "4" | "details":
             helper.clear_screen()

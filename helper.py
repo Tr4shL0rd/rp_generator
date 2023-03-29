@@ -68,12 +68,17 @@ def race_desc(race:str):
     split_race = race.split(" ")
     return race_descriptors[split_race[-1].lower()]
 
-def DEBUG(msg):
+def DEBUG(msg, **kwargs):
     """DEBUG"""
     frame = inspect.currentframe().f_back
     filename = inspect.getframeinfo(frame).filename
     line_number = inspect.getframeinfo(frame).lineno 
-    print(f"[red underline][DEBUG:{filename.split('/')[-1]}:{line_number}][/red underline] {msg}")
+    if "var_name" in kwargs.keys():
+        debug_msg = f"[DEBUG:{filename.split('/')[-1]}:{line_number}|{kwargs['var_name']}]"
+    else:
+        debug_msg = f"[DEBUG:{filename.split('/')[-1]}:{line_number}]"
+
+    print(f"[red underline]{debug_msg}[/red underline] {msg}")
 
 def double_check_firefox_driver_kill():
     """
@@ -111,11 +116,32 @@ def get_races() -> List[str]:
             races.append(line.strip())
     return races
 
+def get_class_specs(character:Character):
+    class_specs = {
+            "Death Knight": [("Blood", "Tank"), ("Frost", "DPS"), ("Unholy", "DPS")],
+            "Demon Hunter": [("Havoc", "DPS"), ("Vengeance", "Tank")],
+            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), ("Restoration", "Healer")],
+            "Hunter": [("Beast Mastery", "DPS"), ("Marksmanship", "DPS"), ("Survival", "DPS")],
+            "Mage": [("Arcane", "DPS"), ("Fire", "DPS"), ("Frost", "DPS")],
+            "Monk": [("Brewmaster", "Tank"), ("Mistweaver", "Healer"), ("Windwalker", "DPS")],
+            "Paladin": [("Holy", "Healer"), ("Protection", "Tank"), ("Retribution", "DPS")],
+            "Priest": [("Discipline", "Healer"), ("Holy", "Healer"), ("Shadow", "DPS")],
+            "Rogue": [("Assassination", "DPS"), ("Outlaw", "DPS"), ("Subtlety", "DPS")],
+            "Shaman": [("Elemental", "DPS"), ("Enhancement", "DPS"), ("Restoration", "Healer")],
+            "Warlock": [("Affliction", "DPS"), ("Demonology", "DPS"), ("Destruction", "DPS")],
+            "Warrior": [("Arms", "DPS"), ("Fury", "DPS"), ("Protection", "Tank")],
+            "Evoker": [("Devastation", "DPS"), ("Preservation", "Healer")]
+        }
+    selected_class = class_specs[character.Class.title()]
+    return [t[0] for t in selected_class]
 
-def get_race_valid_classes(character:Character) -> List[str]:
-    """dwda"""
-    return race_class()[character.Race]
+def get_race_valid_classes(character:str|Character) -> List[str]:
+    """returns a list of race-valid classes"""
 
+    if isinstance(character, Character):
+        return race_class()[character.Race]
+    elif isinstance(character, str):
+        return race_class()[character]
 class Pick:
     """pick class"""
     def __init__(self) -> None:
