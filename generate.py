@@ -292,6 +292,32 @@ def edit_menu(character:Character):
             print("please enter a valid menu entry")
             edit_menu(character)
 
+def backstory_menu(character:Character):
+    """backstory menu"""
+    helper.clear_screen()
+    commands = [
+                    "backstory & image",
+                    "backstory",
+                ]
+    for i, command in enumerate(commands, start=1):
+        if command == "backstory & image":
+            print(f"{i}: [underline]{command}[/underline]")
+        else:
+            print(f"{i}: {command}")
+
+    user_command = input("[BACKSTORY]>>> ")
+    match user_command.lower().strip():
+        case "1" | "backstory and image" | "backstory & image":
+            story = background.create_backstory(character)
+            background.create_image(story, character)
+            print(story)
+        case "2" | "backstory":
+            print(generate_story(character))
+        case _:
+            story = background.create_backstory(character)
+            background.create_image(story, character)
+            print(story)
+
 def main(character:Character=None):
     """main"""
     if character is None:
@@ -316,7 +342,8 @@ def main(character:Character=None):
     user_command = input("[MAIN MENU]>>> ").lower().strip()
     match user_command:
         case "1" | "backstory":
-            generate_story(character)
+            backstory_menu(character)
+            #generate_story(character)
 
         case "2" | "reroll":
             reroll(character)
@@ -337,7 +364,8 @@ def main(character:Character=None):
             sys.exit()
 
         case _: # DEFAULT
-            generate_story(character)
+            backstory_menu(character)
+            #generate_story(character)
             #print(background.create_backstory(character))
 
 try:

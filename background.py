@@ -1,12 +1,11 @@
 """dwa"""
 import os
+import os.path
 import openai
 import requests
-import os.path
-from helper import IMAGE_PATH
 from dotenv import load_dotenv
+from helper import IMAGE_PATH
 from helper import Character
-import itertools
 load_dotenv()
 APIKEY = os.environ["APIKEY"]
 openai.api_key = APIKEY
@@ -25,10 +24,10 @@ BASE_KEYWORDS = [
                 "Character Backstory",
                 "Character",
                 "Backstory",
-                "story",
+                "Story",
                 "DND",
-                "\"dungeons and dragons\"",
-                "\"dungeons & dragons\""
+                "\"Dungeons and Dragons\"",
+                "\"Dungeons & Dragons\""
                 ]
 
 def download_image(url:str, character:Character):
@@ -37,7 +36,7 @@ def download_image(url:str, character:Character):
     character_name = character.Name.replace(" ", "-")
     with open(f"{os.path.join(IMAGE_PATH,character_name)}.png", "wb") as image_file:
         image_file.write(image_data)
-    print(f"saved to {os.path.join(IMAGE_PATH, character.Name.replace(' ','-'))}.png")
+    print(f"\rsaved to {os.path.join(IMAGE_PATH, character.Name.replace(' ','-'))}.png")
 
 
 def get_keywords(character:Character):
@@ -45,16 +44,23 @@ def get_keywords(character:Character):
     appends the generated character paramentes to the keywords
     """
     return BASE_KEYWORDS + [character.Presenting_gender,
-                            #character.Race_description,
                             character.Class,
                             character.Race,
-                            #character.Role,
                             f"{character.Spec} {character.Class}"]
 
 def create_image(image_prompt:str, character:Character):
     """creates an image from the prompt"""
-    print("Generating image. Please wait...")
-    pre_prompt = f"styles: cartoony, low-detailed, fantasy, portrait. {character.Race}, {character.Class}, {character.Presenting_gender}"
+    print("\rGenerating image. Please wait...", end="")
+
+    pre_prompt = f"styles: simple, "\
+                    "stylized, "\
+                    "low-detailed, "\
+                    "fantasy, "\
+                    "portrait. "\
+                    f"{character.Race}, "\
+                    f"{character.Class}, "\
+                    f"{character.Presenting_gender}"
+
     if len(image_prompt)+(len(pre_prompt)+1) > 1000:
         print(f"old prompt: {image_prompt}")
         print(f"old length: {len(image_prompt)}")
@@ -62,25 +68,27 @@ def create_image(image_prompt:str, character:Character):
         print(f"new prompt: {image_prompt}")
         print(f"new length: {len(image_prompt)}")
         input("enter to continue")
+
     prompt = f"{pre_prompt} {image_prompt}"
     sizes = {
         "large": "1024x1024",
         "medium": "512x512",
         "small": "256x256",
     }
+
     resp = openai.Image.create(
         prompt=prompt,
         n=1,
-        size=sizes["medium"]
+        size=sizes["large"]
     )
-    return resp["data"][0]["url"]
+    img = resp["data"][0]["url"]
+    download_image(img, character)
 
 def create_backstory(character:Character):
     """
     creates a backstory for the character based on keywords
     """
-    print("generating story. Please wait...")
-    image = None
+    print("\rGenerating story. Please wait...", end="")
     keywords = get_keywords(character)
     #DEBUG(keywords)
     keywords_prompt = ", ".join(keywords)
@@ -96,9 +104,10 @@ def create_backstory(character:Character):
             "Please note that the world the character lives in is called \"Azeroth\". "\
             "Finish the backstory with the \"END BACKSTORY\". "\
             "create a short character backstory. "\
+            "Start by saying \"i am [NAME] ... "\
             "the charaters short description is: "\
-            f"I'm {character.Name},"\
-                f" a {character.Presenting_gender} {character.Race_description} {character.Class} "
+            f"I'm {character.Name}, "\
+                f"a {character.Presenting_gender} {character.Race_description} {character.Class} "
     resp = openai.Completion.create(
         model=models["davinci-003"],
         prompt=prompt,
@@ -107,10 +116,4 @@ def create_backstory(character:Character):
         n=1, # generates n backstories
         temperature=0.7,
     )
-    choice = input("generate image[Y/n]: ").lower().strip()
-    story = resp.choices[0].text
-    if choice == "" or choice == "y":
-        image = create_image(story, character)
-    if image is not None:
-        download_image(image, character)
-    return story
+    return resp.choices[0].text
