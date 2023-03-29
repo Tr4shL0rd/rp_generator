@@ -41,9 +41,12 @@ def clear_screen():
     subprocess.call("clear" if os.name == "posix" else "cls", shell=True)
 
 def character_details(character:Character):
+    """prints details"""
     for field in fields(character):
-        if getattr(character, field.name) is None or isinstance(getattr(character, field.name), bool):
-            print(f"[yellow]{field.name}[/yellow]: [bold pink italic]{getattr(character, field.name)}[/bold pink italic]")
+        if getattr(character, field.name) is None or isinstance(getattr(character, field.name), 
+                                                                                        bool):
+            print(f"[yellow]{field.name}[/yellow]: "\
+                    "[bold pink italic]{getattr(character, field.name)}[/bold pink italic]")
         else:
             print(f"[yellow]{field.name}[/yellow]: [green]{getattr(character, field.name)}[/green]")
 
@@ -119,10 +122,12 @@ def get_races() -> List[str]:
     return races
 
 def get_class_specs(character:Character):
+    """returns spec for class"""
     class_specs = {
             "Death Knight": [("Blood", "Tank"), ("Frost", "DPS"), ("Unholy", "DPS")],
             "Demon Hunter": [("Havoc", "DPS"), ("Vengeance", "Tank")],
-            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), ("Restoration", "Healer")],
+            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), 
+                        ("Restoration", "Healer")],
             "Hunter": [("Beast Mastery", "DPS"), ("Marksmanship", "DPS"), ("Survival", "DPS")],
             "Mage": [("Arcane", "DPS"), ("Fire", "DPS"), ("Frost", "DPS")],
             "Monk": [("Brewmaster", "Tank"), ("Mistweaver", "Healer"), ("Windwalker", "DPS")],
@@ -144,6 +149,7 @@ def get_race_valid_classes(character:str|Character) -> List[str]:
         return race_class()[character.Race]
     elif isinstance(character, str):
         return race_class()[character]
+
 class Pick:
     """pick class"""
     def __init__(self) -> None:
@@ -172,7 +178,8 @@ class Pick:
         class_specs = {
             "Death Knight": [("Blood", "Tank"), ("Frost", "DPS"), ("Unholy", "DPS")],
             "Demon Hunter": [("Havoc", "DPS"), ("Vengeance", "Tank")],
-            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), ("Restoration", "Healer")],
+            "Druid": [("Balance", "DPS"), ("Feral", "DPS"), ("Guardian", "Tank"), 
+                        ("Restoration", "Healer")],
             "Hunter": [("Beast Mastery", "DPS"), ("Marksmanship", "DPS"), ("Survival", "DPS")],
             "Mage": [("Arcane", "DPS"), ("Fire", "DPS"), ("Frost", "DPS")],
             "Monk": [("Brewmaster", "Tank"), ("Mistweaver", "Healer"), ("Windwalker", "DPS")],
@@ -261,8 +268,6 @@ class Pick:
         clan = " ".join(_race.split(" ")[:-1])
         return clan if len(clan) >=1 else None
 
-        #_race_desc = f"{_clan} {_race_desc}"
-
     def create_character(self) -> Character:
         """creates a random character"""
         character = Character
@@ -271,18 +276,22 @@ class Pick:
         character.Presenting_gender = body_type_to_presenting_gender(character.Body_type)
         character.Race_description = race_desc(character.Race)
         character.Spec,Character.Role = self.random_spec(character.Class)
-        character.Name = random.choice(name_generator.get_names(race=character.Race,body_type=character.Body_type))
+        character.Name = random.choice(
+            name_generator.get_names(
+                race=character.Race,
+                body_type=character.Body_type)
+            )
         if len(character.Race.split(" ")) > 1:
             character.Clan = self.race_valid_clan(character.Race)
             character.Race_description = f"{character.Clan} {character.Race_description}"
         return Character(
-                        Name=character.Name,#_name,
-                        Race=character.Race,#_race,
-                        Race_description=character.Race_description,#_race_desc,
-                        Spec=character.Spec,#_spec,
-                        Role=character.Role,#_role,
-                        Presenting_gender=character.Presenting_gender,#_presenting_gender,
-                        Body_type=character.Body_type,#_body_type,
-                        Class=character.Class,#_class,
-                        Clan=character.Clan,#_clan
+                        Name=character.Name,
+                        Race=character.Race,
+                        Race_description=character.Race_description,
+                        Spec=character.Spec,
+                        Role=character.Role,
+                        Presenting_gender=character.Presenting_gender,
+                        Body_type=character.Body_type,
+                        Class=character.Class,
+                        Clan=character.Clan,
                         )
