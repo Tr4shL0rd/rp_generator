@@ -8,6 +8,7 @@ try:
     from helper import Pick
     from helper import body_type_to_presenting_gender
     import helper # pylint: disable=ungrouped-imports
+    import getpass
 except KeyboardInterrupt:
     exit()
 
@@ -40,6 +41,10 @@ def update_edit_field(character:Character, edited_field:str):
         * rerolled_field `str`: the name of the field that was rerolled
     """
     return (True, character.Edited[1]+1, edited_field)
+
+def generate_story(character:Character):
+    print(background.create_backstory(character))
+
 
 
 def edit_race(character:Character):
@@ -104,23 +109,40 @@ def edit_class(character:Character):
     """edits the class of the character"""
     # class menu
     helper.clear_screen()
-    classes = helper.get_race_valid_classes(character)
-    print(f"available {character.Race} classes")
-    for class_id,_class in enumerate(classes,start=1):
-        print(f"{class_id}: {_class}")
-    chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
-    character.Class = classes[int(chosen_class)-1]
-    class_specs = helper.get_class_specs(character)
 
-    # spec menu
-    helper.clear_screen()
-    print(f"available {character.Class} specs")
-    for spec_id,spec in enumerate(class_specs, start=1):
-        print(f"{spec_id}: {spec}")
-    chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
-    # add check for valid spec
-    character.Spec  = class_specs[int(chosen_spec)-1]
-    main(character)
+    def class_menu():
+        helper.clear_screen()
+        classes = helper.get_race_valid_classes(character)
+        print(f"available {character.Race} classes")
+        for class_id,_class in enumerate(classes,start=1):
+            print(f"{class_id}: {_class}")
+        chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
+        if not chosen_class.isalpha():
+            if int(chosen_class) < 1 or int(chosen_class) > len(classes):
+                print(f"id {chosen_class} not available")
+                getpass.getpass(prompt="press \"ENTER\" to continue")
+                class_menu()
+        else:
+            print(f"{chosen_class} not available")
+            getpass.getpass(prompt="press \"ENTER\" to continue")
+            class_menu()
+
+        character.Class = classes[int(chosen_class)-1]
+
+    def spec_menu():
+        # spec menu
+        class_specs = helper.get_class_specs(character)
+        helper.clear_screen()
+        print(f"available {character.Class} specs")
+        for spec_id,spec in enumerate(class_specs, start=1):
+            print(f"{spec_id}: {spec}")
+        chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
+        # add check for valid spec
+        character.Spec  = class_specs[int(chosen_spec)-1]
+        main(character)
+
+    class_menu()
+    spec_menu()
 
 
 
@@ -194,6 +216,7 @@ def reroll(character:Character):
         case _: # DEFAULT
             main(picker.create_character())
 
+
 def edit_menu(character:Character):
     """Edit"""
     helper.clear_screen()
@@ -249,7 +272,6 @@ def edit_menu(character:Character):
             character.Edited = update_edit_field(character, edits[int(match_case)-1])
             print(f"your Class: {character.Class}")
             edit_class(character)
-            print("CHANGE class")
 
         case "5" | "spec" as match_case:
             #character.Edited = (True, character.Rerolled[1]+1, edits[int(match_case)-1])
@@ -294,7 +316,7 @@ def main(character:Character=None):
     user_command = input("[MAIN MENU]>>> ").lower().strip()
     match user_command:
         case "1" | "backstory":
-            print(background.create_backstory(character))
+            generate_story(character)
 
         case "2" | "reroll":
             reroll(character)
@@ -315,7 +337,8 @@ def main(character:Character=None):
             sys.exit()
 
         case _: # DEFAULT
-            print(background.create_backstory(character))
+            generate_story(character)
+            #print(background.create_backstory(character))
 
 try:
     main()

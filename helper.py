@@ -17,7 +17,9 @@ DATA_PATH = Path("data")
 RACE_CLASS_PATH = os.path.join(DATA_PATH, "race_class.csv")
 CLASSES_PATH = os.path.join(DATA_PATH, "classes.csv")
 RACE_PATH = os.path.join(DATA_PATH, "races.txt")
+IMAGE_PATH = os.path.join(os.getcwd(), "images")
 CURRENT_TIME = time.time()
+
 
 @dataclass
 class Character:

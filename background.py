@@ -1,8 +1,12 @@
 """dwa"""
 import os
 import openai
+import requests
+import os.path
+from helper import IMAGE_PATH
 from dotenv import load_dotenv
 from helper import Character
+import itertools
 load_dotenv()
 APIKEY = os.environ["APIKEY"]
 openai.api_key = APIKEY
@@ -27,6 +31,14 @@ BASE_KEYWORDS = [
                 "\"dungeons & dragons\""
                 ]
 
+def download_image(url:str, character:Character):
+    """downloads an image from URL"""
+    image_data = requests.get(url, timeout=3).content
+    character_name = character.Name.replace(" ", "-")
+    with open(f"{os.path.join(IMAGE_PATH,character_name)}.png", "wb") as image_file:
+        image_file.write(image_data)
+    print(f"saved to {os.path.join(IMAGE_PATH, character.Name.replace(' ','-'))}.png")
+
 
 def get_keywords(character:Character):
     """
@@ -39,10 +51,36 @@ def get_keywords(character:Character):
                             #character.Role,
                             f"{character.Spec} {character.Class}"]
 
+def create_image(image_prompt:str, character:Character):
+    """creates an image from the prompt"""
+    print("Generating image. Please wait...")
+    pre_prompt = f"styles: cartoony, low-detailed, fantasy, portrait. {character.Race}, {character.Class}, {character.Presenting_gender}"
+    if len(image_prompt)+(len(pre_prompt)+1) > 1000:
+        print(f"old prompt: {image_prompt}")
+        print(f"old length: {len(image_prompt)}")
+        image_prompt = image_prompt[0:999-(len(pre_prompt)+1)]
+        print(f"new prompt: {image_prompt}")
+        print(f"new length: {len(image_prompt)}")
+        input("enter to continue")
+    prompt = f"{pre_prompt} {image_prompt}"
+    sizes = {
+        "large": "1024x1024",
+        "medium": "512x512",
+        "small": "256x256",
+    }
+    resp = openai.Image.create(
+        prompt=prompt,
+        n=1,
+        size=sizes["medium"]
+    )
+    return resp["data"][0]["url"]
+
 def create_backstory(character:Character):
     """
     creates a backstory for the character based on keywords
     """
+    print("generating story. Please wait...")
+    image = None
     keywords = get_keywords(character)
     #DEBUG(keywords)
     keywords_prompt = ", ".join(keywords)
@@ -69,4 +107,10 @@ def create_backstory(character:Character):
         n=1, # generates n backstories
         temperature=0.7,
     )
-    return resp.choices[0].text
+    choice = input("generate image[Y/n]: ").lower().strip()
+    story = resp.choices[0].text
+    if choice == "" or choice == "y":
+        image = create_image(story, character)
+    if image is not None:
+        download_image(image, character)
+    return story

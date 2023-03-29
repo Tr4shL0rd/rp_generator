@@ -60,10 +60,8 @@ def get_names(race:str, body_type:str):
     click_gender_button(driver,gender.get(body_type,2))
 
     # Gets names #
-    name_container = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "genSection")))
-    names_container = WebDriverWait(name_container, 3).until(
-        EC.presence_of_element_located((By.ID, "result")))
+    name_container = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, "genSection")))
+    names_container = WebDriverWait(name_container, 3).until(EC.presence_of_element_located((By.ID, "result")))
     names = str(names_container.text) # converting to str for syntax highlight
     driver.quit()
     names = names.strip().split("\n")

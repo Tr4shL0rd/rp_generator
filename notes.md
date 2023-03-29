@@ -14,6 +14,19 @@
 * server
 * backstory (rp)
 
+
+## Pricing
+
+| Model   | Price/1k tokens |
+|---------|-----------------|
+| Davinci | $0.0200         |
+
+| Resolution | Price  |
+|------------|--------|
+| 1024x1024  | $0.020 |
+| 512x512    | $0.018 |
+| 256x256    | $0.016 |
+
 ## Servers used
 
 * Outland
