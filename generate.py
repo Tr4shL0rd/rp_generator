@@ -341,6 +341,8 @@ def settings_menu(character:Character):
         case "2" | "dall-e" | "dalle":
             print("use dall-e")
             using_model = "dall-e"
+        case _:
+            using_model = "stable diffusion"
     with open("settings.conf", "w", encoding="utf8") as settings_file:
         settings_file.write(f"image_model=\"{using_model}\"")
     main_menu(character)
@@ -350,6 +352,8 @@ def main_menu(character:Character=None, *args):
     if character is None:
         print("generating your character")
         character = picker.create_character()
+    if character.Image_model is None:
+        character.Image_model = "stable diffusion"
     if "no_clear" not in args:
         helper.clear_screen()
 

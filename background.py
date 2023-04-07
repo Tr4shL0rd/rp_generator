@@ -57,7 +57,8 @@ def get_keywords(character:Character):
 
 def create_image(image_prompt:str, character:Character, choice:str = "stable diffusion"):
     """MODELS"""
-    if choice.strip() == "stable diffusion":
+    
+    if choice.strip() == "stable diffusion" or choice.strip() == "":
         create_image_stable_diffusion(image_prompt, character)
     elif choice.strip() == "dall-e":
         create_image_dall_e(image_prompt, character)
