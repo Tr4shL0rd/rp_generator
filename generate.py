@@ -132,7 +132,7 @@ def edit_class(character:Character, *kwargs):
         character.Class = classes[int(chosen_class)-1]
 
     def spec_menu():
-        # spec menu
+        """spec menu"""
         class_specs = helper.get_class_specs(character)
         helper.clear_screen()
         print(f"current spec & role: {character.Spec} [{character.Role}]")
@@ -367,8 +367,6 @@ def main(character:Character=None):
 
         case _: # DEFAULT
             backstory_menu(character)
-            #generate_story(character)
-            #print(background.create_backstory(character))
 
 try:
     main()
