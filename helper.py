@@ -121,6 +121,72 @@ def get_races() -> List[str]:
             races.append(line.strip())
     return races
 
+def get_spec_role(character:Character):
+    spec_role = {
+        "Warrior": {
+            "Arms": "DPS",
+            "Fury": "DPS",
+            "Protection": "Tank"
+        },
+        "Paladin": {
+            "Holy": "Healer",
+            "Protection": "Tank",
+            "Retribution": "DPS"
+        },
+        "Hunter": {
+            "Beast Mastery": "DPS",
+            "Marksmanship": "DPS",
+            "Survival": "DPS"
+        },
+        "Rogue": {
+            "Assassination": "DPS",
+            "Outlaw": "DPS",
+            "Subtlety": "DPS"
+        },
+        "Priest": {
+            "Discipline": "Healer",
+            "Holy": "Healer",
+            "Shadow": "DPS"
+        },
+        "Death Knight": {
+            "Blood": "Tank",
+            "Frost": "DPS",
+            "Unholy": "DPS"
+        },
+        "Shaman": {
+            "Elemental": "DPS",
+            "Enhancement": "DPS",
+            "Restoration": "Healer"
+        },
+        "Mage": {
+            "Arcane": "DPS",
+            "Fire": "DPS",
+            "Frost": "DPS"
+        },
+        "Warlock": {
+            "Affliction": "DPS",
+            "Demonology": "DPS",
+            "Destruction": "DPS"
+        },
+        "Monk": {
+            "Brewmaster": "Tank",
+            "Mistweaver": "Healer",
+            "Windwalker": "DPS"
+        },
+        "Druid": {
+            "Balance": "DPS",
+            "Feral": "DPS",
+            "Guardian": "Tank",
+            "Restoration": "Healer"
+        },
+        "Demon Hunter": {
+            "Havoc": "DPS",
+            "Vengeance": "Tank"
+        }
+    }
+    return spec_role[character.Class.title()][character.Spec.title()]
+
+
 def get_class_specs(character:Character):
     """returns spec for class"""
     class_specs = {
@@ -174,7 +240,7 @@ class Pick:
         return random.choice(self.race_class[race])
 
     def random_spec(self, c_class:str|Character=None) -> Tuple[str, str]:
-        """Returns a random spec from a clas"""
+        """Returns a random spec from a class [class,role]"""
         class_specs = {
             "Death Knight": [("Blood", "Tank"), ("Frost", "DPS"), ("Unholy", "DPS")],
             "Demon Hunter": [("Havoc", "DPS"), ("Vengeance", "Tank")],
