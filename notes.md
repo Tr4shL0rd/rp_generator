@@ -14,7 +14,6 @@
 * server
 * backstory (rp)
 
-
 ## Pricing
 
 | Model   | Price/1k tokens |
@@ -26,6 +25,14 @@
 | 1024x1024  | $0.020 |
 | 512x512    | $0.018 |
 | 256x256    | $0.016 |
+
+## LINKS
+
+* [API Docs](https://platform.openai.com/docs/api-reference/)
+* [Text Completion Docs](https://platform.openai.com/docs/api-reference/completions/create)
+* [Image Creation Docs](https://platform.openai.com/docs/api-reference/images/create)
+* [API Usage](https://platform.openai.com/account/usage)
+* [Tokenizer](https://platform.openai.com/tokenizer)
 
 ## Servers used
 
