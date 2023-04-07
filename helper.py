@@ -43,10 +43,12 @@ def clear_screen():
 def character_details(character:Character):
     """prints details"""
     for field in fields(character):
-        if getattr(character, field.name) is None or isinstance(getattr(character, field.name), 
-                                                                                        bool):
+        if getattr(character, field.name) is None \
+            or \
+        isinstance(getattr(character, field.name),bool):
+
             print(f"[yellow]{field.name}[/yellow]: "\
-                    "[bold pink italic]{getattr(character, field.name)}[/bold pink italic]")
+                    f"[bold pink italic]{getattr(character, field.name)}[/bold pink italic]")
         else:
             print(f"[yellow]{field.name}[/yellow]: [green]{getattr(character, field.name)}[/green]")
 
@@ -78,7 +80,8 @@ def DEBUG(msg, **kwargs):
     frame = inspect.currentframe().f_back
     filename = inspect.getframeinfo(frame).filename
     line_number = inspect.getframeinfo(frame).lineno 
-    if "var_name" in kwargs.keys():
+    #if "var_name" in kwargs.keys():
+    if kwargs.get("var_name", None) is not None:
         debug_msg = f"[DEBUG:{filename.split('/')[-1]}:{line_number}|{kwargs['var_name']}]"
     else:
         debug_msg = f"[DEBUG:{filename.split('/')[-1]}:{line_number}]"
@@ -122,6 +125,7 @@ def get_races() -> List[str]:
     return races
 
 def get_spec_role(character:Character):
+    """returns the role of a given spec"""
     spec_role = {
         "Warrior": {
             "Arms": "DPS",
