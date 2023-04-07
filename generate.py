@@ -39,15 +39,13 @@ def update_edit_field(character:Character, edited_field:str):
 
     PARAMS:
     -------
-        * rerolled_field `str`: the name of the field that was rerolled
+        * edited_field `str`: the name of the field that was edited
     """
     return (True, character.Edited[1]+1, edited_field)
 
 def generate_story(character:Character):
     """prints the backstory"""
     print(background.create_backstory(character))
-
-
 
 def edit_race(character:Character):
     """edit race func"""
@@ -70,12 +68,10 @@ def edit_race(character:Character):
         selected_race = new_race.title()
     if not selected_race:
         print("error: not selected race")
-        #helper.DEBUG(selected_race)
         exit()
 
     race_choice = input(f"change to {selected_race} [Y/n]: ").lower().strip()
     if race_choice == "n":
-        #helper.DEBUG("HIT ELSE AFTER RACE confirmation to change")
         edit_menu(character)
     character.Race = selected_race
     character.Race_description = helper.race_desc(character.Race)
@@ -89,7 +85,6 @@ def edit_race(character:Character):
         character.Name = picker.random_name(character.Race,character.Body_type)
         print(f"new name: {character.Name}")
     else:
-        #helper.DEBUG("HIT ELSE AFTER NAME confirmation (inner nest)")
         main(character)
 
     # change class
@@ -101,7 +96,6 @@ def edit_race(character:Character):
         print("do you want to change[Y/n]?")
         class_choice = input("").strip().lower()
         if class_choice == "n":
-            #helper.DEBUG("HIT ELSE AFTER confirmation after warning (inner nest)")
             main(character)
         character.Class = picker.random_class_from_race(character.Race)
         character.Spec = picker.random_spec(character)[0]
@@ -119,6 +113,8 @@ def edit_class(character:Character, *kwargs):
         for class_id,_class in enumerate(classes,start=1):
             print(f"{class_id}: {_class}")
         chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
+        if chosen_class == "back" or chosen_class == "menu" or chosen_class == "main menu":
+            main(character)
         if not chosen_class.isalpha():
             if int(chosen_class) < 1 or int(chosen_class) > len(classes):
                 print(f"id {chosen_class} not available")
@@ -140,6 +136,8 @@ def edit_class(character:Character, *kwargs):
         for spec_id,spec in enumerate(class_specs, start=1):
             print(f"{spec_id}: {spec}")
         chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
+        if chosen_spec == "back" or chosen_spec == "menu" or chosen_spec == "main menu":
+            main(character)
         try:
             character.Spec  = class_specs[int(chosen_spec)-1]
         except (IndexError, ValueError):
@@ -225,7 +223,7 @@ def reroll(character:Character):
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             main(character)
 
-        case "7" | "main menu" | "main" | "menu":
+        case "7" | "main menu" | "main" | "menu" | "back":
             main(character)
 
         case _: # DEFAULT
@@ -281,13 +279,7 @@ def edit_menu(character:Character):
             print(f"your Spec: {character.Spec}")
             edit_class(character, "spec")
 
-        case "6" | "role" as match_case:
-            print("NOT IMPLEMENTED!")
-            character.Edited = update_edit_field(character, edits[int(match_case)-1])
-            print(f"your Role: {character.Role}")
-            print("CHANGE role")
-
-        case "7" | "main" | "main menu":
+        case "6" | "main" | "main menu" | "back":
             main(character)
 
         case _:
@@ -300,6 +292,7 @@ def backstory_menu(character:Character):
     commands = [
                     "backstory & image",
                     "backstory",
+                    "main menu"
                 ]
     for i, command in enumerate(commands, start=1):
         if command == "backstory & image":
@@ -315,6 +308,8 @@ def backstory_menu(character:Character):
             print(story)
         case "2" | "backstory":
             print(generate_story(character))
+        case "3" | "main menu" | "back":
+            main(character)
         case _:
             story = background.create_backstory(character)
             background.create_image(story, character)
@@ -334,7 +329,7 @@ def main(character:Character=None):
                     "details",
                 ]
     commands.append("quit")
-    helper.DEBUG(character)
+    #helper.DEBUG(character)
     display_character(character)
     for i,command in enumerate(commands, start=1):
         if command == "backstory":
@@ -355,7 +350,7 @@ def main(character:Character=None):
 
         case "4" | "details":
             helper.clear_screen()
-            helper.DEBUG(character)
+            #helper.DEBUG(character)
             helper.character_details(character)
             input("press \"ENTER\" to continue")
             main(character)
