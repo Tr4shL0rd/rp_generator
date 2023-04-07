@@ -1,6 +1,6 @@
 """Module for getting names from fantasynamegenerators.com"""
 from selenium import webdriver
-from selenium.webdriver.firefox.webdriver import WebDriver 
+from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -42,17 +42,18 @@ def get_names(race:str, body_type:str):
         "1": "male",
         "2": "female"
     }
-    special_races = ["dark iron dwarf", "nightborne", "kul tiran human", "mechagnome",
-                        "zandalari troll", "lightforged draenei", "vulpera", "void elf"]
     url = "https://www.fantasynamegenerators.com/"\
             f"{url_safe_name(race).lower()}-wow-names.php"
-    if race in special_races:
-        if special_races == "kul tiran human":
+    special_races = ["dark iron dwarf", "nightborne", "mechagnome",
+                        "zandalari troll", "lightforged draenei",
+                        "vulpera", "void elf", "highmountain tauren",
+                        "kul tiran human"]
+    if race.lower() in special_races:
+        if race == "kul tiran human":
             url = "https://www.fantasynamegenerators.com/human-wow-names.php"
         else:
             url = "https://www.fantasynamegenerators.com/"\
                     f"wow-{url_safe_name(race).lower()}-names.php"
-    #print(f"DEBUG [name_generator.py] {url = }")
     driver.get(url)
     # clicks "Get <gender> names" #
     # gendered names doesnt seem to toggle unless pressed twice
