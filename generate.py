@@ -1,5 +1,6 @@
 """dadwa"""
 try:
+    import time
     import traceback
     import sys
     from rich import print # pylint: disable=redefined-builtin
@@ -43,6 +44,7 @@ def update_edit_field(character:Character, edited_field:str):
     return (True, character.Edited[1]+1, edited_field)
 
 def generate_story(character:Character):
+    """prints the backstory"""
     print(background.create_backstory(character))
 
 
@@ -133,16 +135,19 @@ def edit_class(character:Character, *kwargs):
         # spec menu
         class_specs = helper.get_class_specs(character)
         helper.clear_screen()
+        print(f"current spec & role: {character.Spec} [{character.Role}]")
         print(f"available {character.Class} specs")
         for spec_id,spec in enumerate(class_specs, start=1):
             print(f"{spec_id}: {spec}")
         chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
-        # add check for valid spec
-        character.Spec  = class_specs[int(chosen_spec)-1]
-        # TODO: update character.Role
-        print(character.Role)
+        try:
+            character.Spec  = class_specs[int(chosen_spec)-1]
+        except (IndexError, ValueError):
+            helper.clear_screen()
+            print("please select a valid spec!")
+            time.sleep(0.5)
+            spec_menu()
         character.Role = helper.get_spec_role(character)
-        print(character.Role)
         main(character)
     if "spec" in kwargs:
         spec_menu()
@@ -375,6 +380,7 @@ except Exception as e: # pylint: disable=broad-exception-caught
         TB = traceback.format_exc()
         lines = TB.strip().split("\n")
         print(lines[0:10])
+        print(f"exception type: {type(e).__name__}")
         print(e)
 
 except KeyboardInterrupt:
