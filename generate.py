@@ -85,7 +85,7 @@ def edit_race(character:Character):
         character.Name = picker.random_name(character.Race,character.Body_type)
         print(f"new name: {character.Name}")
     else:
-        main(character)
+        main_menu(character)
 
     # change class
     if character.Class not in helper.get_race_valid_classes(character):
@@ -96,10 +96,10 @@ def edit_race(character:Character):
         print("do you want to change[Y/n]?")
         class_choice = input("").strip().lower()
         if class_choice == "n":
-            main(character)
+            main_menu(character)
         character.Class = picker.random_class_from_race(character.Race)
         character.Spec = picker.random_spec(character)[0]
-    main(character)
+    main_menu(character)
 
 def edit_class(character:Character, *kwargs):
     """edits the class of the character"""
@@ -114,7 +114,7 @@ def edit_class(character:Character, *kwargs):
             print(f"{class_id}: {_class}")
         chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
         if chosen_class == "back" or chosen_class == "menu" or chosen_class == "main menu":
-            main(character)
+            main_menu(character)
         if not chosen_class.isalpha():
             if int(chosen_class) < 1 or int(chosen_class) > len(classes):
                 print(f"id {chosen_class} not available")
@@ -137,7 +137,7 @@ def edit_class(character:Character, *kwargs):
             print(f"{spec_id}: {spec}")
         chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
         if chosen_spec == "back" or chosen_spec == "menu" or chosen_spec == "main menu":
-            main(character)
+            main_menu(character)
         try:
             character.Spec  = class_specs[int(chosen_spec)-1]
         except (IndexError, ValueError):
@@ -146,7 +146,7 @@ def edit_class(character:Character, *kwargs):
             time.sleep(0.5)
             spec_menu()
         character.Role = helper.get_spec_role(character)
-        main(character)
+        main_menu(character)
     if "spec" in kwargs:
         spec_menu()
     class_menu()
@@ -160,7 +160,7 @@ def edit_name(character:Character):
     print(f"rename \"{character.Name.title()}\" to \"{new_name.title()}\" [Y/n]? ",end="")
     choice = input("").lower().strip()
     if choice == "n":
-        main(character)
+        main_menu(character)
     character.Name = new_name.title()
 
 def reroll(character:Character):
@@ -187,7 +187,7 @@ def reroll(character:Character):
         case "1" | "everything" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character = picker.create_character()
-            main(character)
+            main_menu(character)
 
         case "2" | "race" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
@@ -197,37 +197,37 @@ def reroll(character:Character):
                                 f"{character.Race_description} name? [Y/n]: ").lower().strip()
             if  name_change == "y" or name_change == "":
                 character.Name = picker.random_name(character.Race, character.Body_type)
-            main(character)
+            main_menu(character)
 
         case "3" | "gender" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Body_type = picker.random_body_type()
             character.Presenting_gender = body_type_to_presenting_gender(character.Body_type)
-            main(character)
+            main_menu(character)
 
         case "4" | "class" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Class = picker.random_class_from_race(character.Race)
             character.Spec = picker.random_spec(character.Class)[0]
             character.Role = picker.random_spec(character.Class)[1]
-            main(character)
+            main_menu(character)
 
         case "5" | "spec" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
             character.Spec = picker.random_spec(character.Class)[0]
             character.Role = picker.random_spec(character.Class)[1]
-            main(character)
+            main_menu(character)
 
         case "6" | "name" as match_case:
             character.Name = picker.random_name(character.Race, character.Body_type)
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
-            main(character)
+            main_menu(character)
 
         case "7" | "main menu" | "main" | "menu" | "back":
-            main(character)
+            main_menu(character)
 
         case _: # DEFAULT
-            main(picker.create_character())
+            main_menu(picker.create_character())
 
 def edit_menu(character:Character):
     """Edit"""
@@ -280,7 +280,7 @@ def edit_menu(character:Character):
             edit_class(character, "spec")
 
         case "6" | "main" | "main menu" | "back":
-            main(character)
+            main_menu(character)
 
         case _:
             print("please enter a valid menu entry")
@@ -304,29 +304,61 @@ def backstory_menu(character:Character):
     match user_command.lower().strip():
         case "1" | "backstory and image" | "backstory & image":
             story = background.create_backstory(character)
-            background.create_image(story, character)
+            background.create_image(story, character, helper.get_current_image_model())
             print(story)
+            main_menu(character)
         case "2" | "backstory":
             print(generate_story(character))
+            main_menu(character, "no_clear")
+            
         case "3" | "main menu" | "back":
-            main(character)
+            main_menu(character, "no_clear")
+
         case _:
             story = background.create_backstory(character)
-            background.create_image(story, character)
+            background.create_image(story, character, helper.get_current_image_model())
             print(story)
+            main_menu(character, "no_clear")
 
-def main(character:Character=None):
+def settings_menu(character:Character):
+    helper.clear_screen()
+    models = [
+        "stable diffusion",
+        "dall-e",
+    ]
+    for i, model in enumerate(models, start=1):
+        if model == models[0]:
+            print(f"{i}: [underline]{model.title()}[/underline] [underline][DEFAULT][/underline]")
+        else:
+            print(f"{i}: {model.title()}")
+        
+    user_command = input("[SETTINGS]>>> ").lower().strip()
+    using_model = ""
+    match user_command:
+        case "1" | "stable diffusion" | "sd":
+            print("use stable diffusion")
+            using_model = "stable diffusion"
+        case "2" | "dall-e" | "dalle":
+            print("use dall-e")
+            using_model = "dall-e"
+    with open("settings.conf", "w", encoding="utf8") as settings_file:
+        settings_file.write(f"image_model=\"{using_model}\"")
+    main_menu(character)
+
+def main_menu(character:Character=None, *args):
     """main"""
     if character is None:
         print("generating your character")
         character = picker.create_character()
-    helper.clear_screen()
+    if "no_clear" not in args:
+        helper.clear_screen()
 
     commands = [
                     "backstory",
                     "reroll",
                     "edit",
                     "details",
+                    "settings",
                 ]
     commands.append("quit")
     #helper.DEBUG(character)
@@ -353,9 +385,11 @@ def main(character:Character=None):
             #helper.DEBUG(character)
             helper.character_details(character)
             input("press \"ENTER\" to continue")
-            main(character)
+            main_menu(character)
 
-        case "5" | "quit" | "exit" | "q":
+        case "5" | "settings":
+            settings_menu(character)
+        case "6" | "quit" | "exit" | "q":
             print("exiting...")
             helper.double_check_firefox_driver_kill()
             sys.exit()
@@ -364,7 +398,7 @@ def main(character:Character=None):
             backstory_menu(character)
 
 try:
-    main()
+    main_menu()
 
 except Exception as e: # pylint: disable=broad-exception-caught
     EXCEPTION_RAISED = True

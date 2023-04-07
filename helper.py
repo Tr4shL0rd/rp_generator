@@ -35,6 +35,7 @@ class Character:
     Role:str=None
     Edited:Tuple[bool,int,str]=(False,0,"") # changed, times, latest
     Rerolled:Tuple[bool,int,str]=(False,0,"")# changed, times, latest
+    Image_model:str=None
 
 def clear_screen():
     """clears the screen"""
@@ -190,6 +191,9 @@ def get_spec_role(character:Character):
     }
     return spec_role[character.Class.title()][character.Spec.title()]
 
+def get_current_image_model():
+    with open("settings.conf", "r") as f:
+        return f.readline().split("=")[-1].replace("\"", "")
 
 def get_class_specs(character:Character):
     """returns spec for class"""
@@ -340,12 +344,12 @@ class Pick:
 
     def create_character(self) -> Character:
         """creates a random character"""
-        character = Character
+        character = Character()
         character.Race, character.Class = self.random_race_class()
         character.Body_type = self.random_body_type()
         character.Presenting_gender = body_type_to_presenting_gender(character.Body_type)
         character.Race_description = race_desc(character.Race)
-        character.Spec,Character.Role = self.random_spec(character.Class)
+        character.Spec,character.Role = self.random_spec(character.Class)
         character.Name = random.choice(
             name_generator.get_names(
                 race=character.Race,
@@ -354,14 +358,16 @@ class Pick:
         if len(character.Race.split(" ")) > 1:
             character.Clan = self.race_valid_clan(character.Race)
             character.Race_description = f"{character.Clan} {character.Race_description}"
-        return Character(
-                        Name=character.Name,
-                        Race=character.Race,
-                        Race_description=character.Race_description,
-                        Spec=character.Spec,
-                        Role=character.Role,
-                        Presenting_gender=character.Presenting_gender,
-                        Body_type=character.Body_type,
-                        Class=character.Class,
-                        Clan=character.Clan,
-                        )
+        character.Image_model = get_current_image_model()
+        return character
+        #return Character(
+        #                Name=character.Name,
+        #                Race=character.Race,
+        #                Race_description=character.Race_description,
+        #                Spec=character.Spec,
+        #                Role=character.Role,
+        #                Presenting_gender=character.Presenting_gender,
+        #                Body_type=character.Body_type,
+        #                Class=character.Class,
+        #                Clan=character.Clan,
+        #                )

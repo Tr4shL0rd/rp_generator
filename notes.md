@@ -7,13 +7,17 @@
 * allow user choosing class, race, prefered gender, and/or role
 * speed up name generation
 
-## Keep in mind
 
-* race & class combo
-* name
-* server
-* backstory (rp)
+## EXCEPTIONS
 
+### STABLE DIFFUSION
+
+* timeout error
+* queue full
+
+### WEBSOCKETS
+
+* WebSocketConnectionClosedException
 ## Pricing
 
 | Model   | Price/1k tokens |
