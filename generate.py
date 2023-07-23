@@ -9,6 +9,7 @@ try:
     from helper import Pick
     from helper import body_type_to_presenting_gender
     import helper # pylint: disable=ungrouped-imports
+    from helper import IMAGE_PATH
     import getpass
 except KeyboardInterrupt:
     exit()
@@ -56,9 +57,9 @@ def edit_race(character:Character):
     print("available races")
     for i,race in enumerate(races, start=1):
         if race == character.Race:
-            print(f"{i}: [underline]{race}[/underline] [underline](your race)[/underline]")
+            print(f"{i}: [underline]{race.title()}[/underline] [underline](your race)[/underline]")
         else:
-            print(f"{i}: {race}")
+            print(f"{i}: {race.title()}")
     print("please select a new race by entering the name or the "\
             f"id[1-{len(races)}] (CURRENTLY ONLY ID)")
     new_race = input("select new race: ").strip().lower()
@@ -111,7 +112,7 @@ def edit_class(character:Character, *kwargs):
         classes = helper.get_race_valid_classes(character)
         print(f"available {character.Race} classes")
         for class_id,_class in enumerate(classes,start=1):
-            print(f"{class_id}: {_class}")
+            print(f"{class_id}: {_class.title()}")
         chosen_class = input(f"select class[1-{len(classes)}]: ").strip().lower()
         if chosen_class == "back" or chosen_class == "menu" or chosen_class == "main menu":
             main_menu(character)
@@ -134,7 +135,7 @@ def edit_class(character:Character, *kwargs):
         print(f"current spec & role: {character.Spec} [{character.Role}]")
         print(f"available {character.Class} specs")
         for spec_id,spec in enumerate(class_specs, start=1):
-            print(f"{spec_id}: {spec}")
+            print(f"{spec_id}: {spec.title()}")
         chosen_spec = input(f"Select a spec[1-{len(class_specs)}]: ").strip().lower()
         if chosen_spec == "back" or chosen_spec == "menu" or chosen_spec == "main menu":
             main_menu(character)
@@ -181,8 +182,8 @@ def reroll(character:Character):
             print(f"{i} [underline]{command.title()}[/underline] [underline][DEFAULT][/underline]")
         else:
             print(f"{i} {command.title()}")
-
-    match input("[REROLL]>>> ").lower().strip():
+    user_command = input("[REROLL]>>> ").lower().strip()
+    match user_command:
 
         case "1" | "everything" as match_case:
             character.Rerolled = update_reroll_field(character, rerolls[int(match_case)-1])
@@ -227,7 +228,11 @@ def reroll(character:Character):
             main_menu(character)
 
         case _: # DEFAULT
-            main_menu(picker.create_character())
+            if user_command == "":
+                main_menu(picker.create_character())
+            else:
+                print("[red underline]Please select a valid menu option[/red underline]")
+                time.sleep(0.5)
 
 def edit_menu(character:Character):
     """Edit"""
@@ -243,8 +248,8 @@ def edit_menu(character:Character):
     print("What do you want to edit?")
     for i,command in enumerate(edits, start=1):
         print(f"{i}: {command.title()}")
-
-    match input("[EDIT MENU]>>> ").lower().strip():
+    user_command = input("[EDIT MENU]>>> ").lower().strip()
+    match user_command:
 
         case "1" | "name" as match_case:
             character.Edited = update_edit_field(character, edits[int(match_case)-1])
@@ -283,8 +288,13 @@ def edit_menu(character:Character):
             main_menu(character)
 
         case _:
-            print("please enter a valid menu entry")
-            edit_menu(character)
+            if user_command == "":
+                print("please enter a valid menu entry")
+                edit_menu(character)
+            else:
+                print("[red underline]Please select a valid menu option[/red underline]")
+                time.sleep(0.5)
+                edit_menu(character)
 
 def backstory_menu(character:Character):
     """backstory menu"""
@@ -296,11 +306,11 @@ def backstory_menu(character:Character):
                 ]
     for i, command in enumerate(commands, start=1):
         if command == "backstory & image":
-            print(f"{i}: [underline]{command}[/underline]")
+            print(f"{i}: [underline]{command.title()}[/underline]")
         else:
-            print(f"{i}: {command}")
+            print(f"{i}: {command.title()}")
 
-    user_command = input("[BACKSTORY]>>> ")
+    user_command = input("[BACKSTORY]>>> ").lower().strip()
     match user_command.lower().strip():
         case "1" | "backstory and image" | "backstory & image":
             story = background.create_backstory(character)
@@ -310,29 +320,36 @@ def backstory_menu(character:Character):
         case "2" | "backstory":
             print(generate_story(character))
             main_menu(character, "no_clear")
-            
-        case "3" | "main menu" | "back":
+
+        case "3" | "(main menu" | "back":
+            helper.clear_screen()
             main_menu(character, "no_clear")
 
         case _:
-            story = background.create_backstory(character)
-            background.create_image(story, character, helper.get_current_image_model())
-            print(story)
-            main_menu(character, "no_clear")
+            if user_command == "":
+                story = background.create_backstory(character)
+                background.create_image(story, character, helper.get_current_image_model())
+                print(story)
+                main_menu(character, "no_clear")
+            else:
+                print("[red underline]Please select a valid menu option[/red underline]")
+                time.sleep(0.5)
+                backstory_menu(character)
 
-def settings_menu(character:Character):
+def settings_models(character:Character):
+    """settings for image generation models"""
     helper.clear_screen()
     models = [
         "stable diffusion",
         "dall-e",
+        "main menu"
     ]
     for i, model in enumerate(models, start=1):
         if model == models[0]:
             print(f"{i}: [underline]{model.title()}[/underline] [underline][DEFAULT][/underline]")
         else:
             print(f"{i}: {model.title()}")
-        
-    user_command = input("[SETTINGS]>>> ").lower().strip()
+    user_command = input("[MODEL SETTINGS]>>> ").lower().strip()
     using_model = ""
     match user_command:
         case "1" | "stable diffusion" | "sd":
@@ -341,14 +358,45 @@ def settings_menu(character:Character):
         case "2" | "dall-e" | "dalle":
             print("use dall-e")
             using_model = "dall-e"
+        case "3" | "back" | "main menu":
+            main_menu(character)
         case _:
-            using_model = "stable diffusion"
+            if user_command == "":
+                using_model = "stable diffusion"
+            else:
+                print("[red underline]Please select a valid menu option[/red underline]")
+                time.sleep(0.5)
+                settings_menu(character)
+
     with open("settings.conf", "w", encoding="utf8") as settings_file:
         settings_file.write(f"image_model=\"{using_model}\"")
     main_menu(character)
 
-def main_menu(character:Character=None, *args):
+def settings_menu(character:Character):
+    """Settings menu"""
+    helper.clear_screen()
+    commands = ["image models", "clear image folder", "main menu"]
+    for i, command in enumerate(commands,start=1):
+        print(f"{i}: {command.title()}")
+    user_command = input("[SETTINGS]>>> ").lower().strip()
+    match user_command:
+        case "1" | "image models" | "models":
+            settings_models(character)
+        case "2" | "clear image folder" | "image folder" | "clear":
+            helper.clear_images()
+            main_menu(character)
+        case "3" | "back" | "main" | "main menu":
+            helper.clear_screen()
+            main_menu(character)
+        case _:
+            print("please select a menu option")
+            settings_menu(character)
+
+    
+def main_menu(character:Character, *args):
     """main"""
+    if helper.get_folder_size(IMAGE_PATH) >= 5 * 10**6:
+        helper.clear_images()
     if character is None:
         print("generating your character")
         character = picker.create_character()
@@ -386,7 +434,6 @@ def main_menu(character:Character=None, *args):
 
         case "4" | "details":
             helper.clear_screen()
-            #helper.DEBUG(character)
             helper.character_details(character)
             input("press \"ENTER\" to continue")
             main_menu(character)
@@ -399,10 +446,15 @@ def main_menu(character:Character=None, *args):
             sys.exit()
 
         case _: # DEFAULT
-            backstory_menu(character)
+            if user_command == "":
+                backstory_menu(character)
+            else:
+                print("[red underline]Please select a valid menu option[/red underline]")
+                time.sleep(0.5)
+                main_menu(character)
 
 try:
-    main_menu()
+    main_menu(None)
 
 except Exception as e: # pylint: disable=broad-exception-caught
     EXCEPTION_RAISED = True

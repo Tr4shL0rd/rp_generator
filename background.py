@@ -208,6 +208,6 @@ def create_backstory(character:Character):
         temperature=0.7,
     )
 
-    with open("backstories.log", "a") as f:
+    with open("backstories.log", "a", encoding="utf8") as f:
         f.write(f"{character.Name}\n{resp.choices[0].text}\n{'#'*30}\n")
     return resp.choices[0].text

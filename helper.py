@@ -37,6 +37,22 @@ class Character:
     Rerolled:Tuple[bool,int,str]=(False,0,"")# changed, times, latest
     Image_model:str=None
 
+def get_folder_size(folder_path:str) -> int:
+    """returns the size `int` of a folder"""
+    size = 0
+    for path,_,files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(path,file)
+            size += os.path.getsize(file_path)
+    return size
+
+def clear_images():
+    """empties the images folder if its getting too large"""
+    files = os.listdir(IMAGE_PATH)
+    for file in files:
+        file_path = os.path.join(IMAGE_PATH, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 def clear_screen():
     """clears the screen"""
     subprocess.call("clear" if os.name == "posix" else "cls", shell=True)
@@ -192,7 +208,7 @@ def get_spec_role(character:Character):
     return spec_role[character.Class.title()][character.Spec.title()]
 
 def get_current_image_model():
-    with open("settings.conf", "r") as f:
+    with open("settings.conf", "r", encoding="utf8") as f:
         return f.readline().split("=")[-1].replace("\"", "")
 
 def get_class_specs(character:Character):
